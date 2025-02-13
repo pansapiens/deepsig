@@ -34,7 +34,9 @@ conda install -c bioconda deepsig
 ```
 $ deepsig -h
 
-usage: deepsig.py [-h] -f FASTA -o OUTF -k {euk,gramp,gramn} [-a CPU]
+usage: deepsig.py [-h] -f FASTA -o OUTF -k {euk,gramp,gramn} [-m {json,gff3}] 
+                  [--output-processed PROCESSED_FASTA] [--output-noss NOSS_FASTA]
+                  [-t THREADS] [--version]
 
 DeepSig: Predictor of signal peptides in proteins
 
@@ -42,10 +44,20 @@ optional arguments:
   -h, --help            show this help message and exit
   -f FASTA, --fasta FASTA
                         The input multi-FASTA file name
-  -o OUTF, --outf OUTF  The output tabular file
+  -o OUTF, --outf OUTF  The output file
   -k {euk,gramp,gramn}, --organism {euk,gramp,gramn}
                         The organism the sequences belongs to
-```
+  -m {json,gff3}, --outfmt {json,gff3}
+                        The output format: json or gff3 (default)
+  --output-processed PROCESSED_FASTA
+                        Output FASTA file containing mature sequences with signal
+                        peptides removed
+  --output-noss NOSS_FASTA
+                        Output FASTA file containing sequences without predicted
+                        signal peptides
+  -t THREADS, --threads THREADS
+                        Number of threads to use (default = number of available CPUs)
+  --version            Show program's version number and exit
 
 The program accepts three mandatory arguments:
 - The full path of the input FASTA file containing protein sequences to be predicted;
@@ -71,7 +83,9 @@ Now the DeepSig Docker image is installed in your local Docker environment and r
 $ docker run bolognabiocomp/deepsig -h
 
 Using TensorFlow backend.
-usage: deepsig.py [-h] -f FASTA -o OUTF -k {euk,gramp,gramn} [-a CPU]
+usage: deepsig.py [-h] -f FASTA -o OUTF -k {euk,gramp,gramn} [-m {json,gff3}] 
+                  [--output-processed PROCESSED_FASTA] [--output-noss NOSS_FASTA]
+                  [-t THREADS] [--version]
 
 DeepSig: Predictor of signal peptides in proteins
 
@@ -79,10 +93,21 @@ optional arguments:
   -h, --help            show this help message and exit
   -f FASTA, --fasta FASTA
                         The input multi-FASTA file name
-  -o OUTF, --outf OUTF  The output tabular file
+  -o OUTF, --outf OUTF  The output file
   -k {euk,gramp,gramn}, --organism {euk,gramp,gramn}
                         The organism the sequences belongs to
-```
+  -m {json,gff3}, --outfmt {json,gff3}
+                        The output format: json or gff3 (default)
+  --output-processed PROCESSED_FASTA
+                        Output FASTA file containing mature sequences with signal
+                        peptides removed
+  --output-noss NOSS_FASTA
+                        Output FASTA file containing sequences without predicted
+                        signal peptides
+  -t THREADS, --threads THREADS
+                        Number of threads to use (default = number of available CPUs)
+  --version            Show program's version number and exit
+
 The program accepts three mandatory arguments:
 - The full path of the input FASTA file containing protein sequences to be predicted;
 - The kingdom the sequences belong to. You must specify "euk" for Eukaryotes, "gramp" for Gram-positive bacteria or "gramn" for Gram-negative bacteria;

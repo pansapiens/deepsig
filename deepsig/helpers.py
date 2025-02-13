@@ -4,7 +4,7 @@ import os
 import subprocess
 import numpy
 import json
-
+from typing import List, Union
 
 from time import localtime, strftime
 
@@ -41,13 +41,12 @@ def seq2pssm(sequence, maxlen):
   return M
 
 def readdata(filename, maxlen):
-  X, accs, seqs = [], [], []
-  for record in SeqIO.parse(filename, 'fasta'):
-    accs.append(record.id)
-    X.append(seq2pssm(str(record.seq).replace("U", "C"), maxlen))
-    seqs.append(str(record.seq))
-  X = numpy.array(pad_sequences(X, padding='post', maxlen=maxlen))
-  return X, accs, seqs
+    X, records = [], []
+    for record in SeqIO.parse(filename, 'fasta'):
+        X.append(seq2pssm(str(record.seq).replace("U", "C"), maxlen))
+        records.append(record)
+    X = numpy.array(pad_sequences(X, padding='post', maxlen=maxlen))
+    return X, records
 
 def detectsp(X, organism):
   Y = []
@@ -280,3 +279,28 @@ def get_json_output(acc, sequence, p_class, prob, cleavage):
         ]
       })
   return acc_json
+
+def write_processed_sequences(records: List[SeqIO.SeqRecord], cls: List[int], cleavage: List[Union[int, str]], outfile: str) -> None:
+    """Write processed sequences with signal peptides removed to a FASTA file."""
+    with open(outfile, 'w') as f:
+        for record, cl, cleave in zip(records, cls, cleavage):
+            if cl == 2:  # SignalPeptide
+                # Add range to description if it exists, otherwise create new description
+                range_str = f" [{cleave}-{len(record.seq)}]"
+                if record.description and record.description != record.id:
+                    header = f">{record.description}{range_str}"
+                else:
+                    header = f">{record.id}{range_str}"
+                print(header, file=f)
+                print(str(record.seq)[cleave:], file=f)
+            else:
+                print(f">{record.description}" if record.description else f">{record.id}", file=f)
+                print(str(record.seq), file=f)
+
+def write_noss_sequences(records: List[SeqIO.SeqRecord], cls: List[int], outfile: str) -> None:
+    """Write sequences without signal peptides to a FASTA file."""
+    with open(outfile, 'w') as f:
+        for record, cl in zip(records, cls):
+            if cl != 2:  # Not a SignalPeptide
+                print(f">{record.description}" if record.description else f">{record.id}", file=f)
+                print(str(record.seq), file=f)
